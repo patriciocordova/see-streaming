@@ -307,6 +307,7 @@ public abstract class MediaStream implements Stream {
 			} catch (IOException e1) {}
 		}
 
+
 		mReceiver = new LocalSocket();
 		mReceiver.connect( new LocalSocketAddress(LOCAL_ADDR+mSocketId));
 		mReceiver.setReceiveBufferSize(500000);

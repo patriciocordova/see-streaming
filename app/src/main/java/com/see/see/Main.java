@@ -1,6 +1,7 @@
 package com.see.see;
 
 import android.app.Activity;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -89,14 +90,28 @@ public class Main extends Activity implements RtspClient.Callback, Session.Callb
     }
 
     private void initRtspClient() {
+
+        Camera camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+        final Camera.Parameters params = camera.getParameters();
+        android.hardware.Camera.Size size = params.getPictureSize();
+        int framerate[] = VideoQuality.determineMaximumSupportedFramerate(params);
+        android.hardware.Camera.Parameters parameters = camera.getParameters();
+        camera.release();
+        camera = null;
+
+        VideoQuality vq = VideoQuality.determineClosestSupportedResolution(parameters,new VideoQuality(220, 180, 20, 500000));
+
         // Configures the SessionBuilder
         mSession = SessionBuilder.getInstance()
                 .setContext(getApplicationContext())
-                .setAudioEncoder(SessionBuilder.AUDIO_NONE)
-                .setAudioQuality(new AudioQuality(8000, 16000))
+                .setAudioEncoder(SessionBuilder.AUDIO_AAC)
+                .setAudioQuality(new AudioQuality(8000,32000))
                 .setVideoEncoder(SessionBuilder.VIDEO_H264)
-                .setSurfaceView(mSurfaceView).setPreviewOrientation(0)
-                .setCallback(this).build();
+                .setVideoQuality(vq)
+                .setSurfaceView(mSurfaceView)
+                .setPreviewOrientation(0)
+                .setCallback(this)
+                .build();
 
         // Configures the RTSP client
         mClient = new RtspClient();

@@ -456,7 +456,18 @@ public class RtspClient {
 		mOutputStream.write(request.getBytes("UTF-8"));
 		mOutputStream.flush();
 		Response.parseResponse(mBufferedReader);
-	}	
+	}
+
+    /**
+     * Get max bandwidth.
+     */
+    private void getMaxBandwith() throws IOException {
+        String request = "OPTIONS rtsp://"+mParameters.host+":"+mParameters.port+mParameters.path+" RTSP/1.0\r\n" + addHeaders();
+        Log.i(TAG,request.substring(0, request.indexOf("\r\n")));
+        mOutputStream.write(request.getBytes("UTF-8"));
+        mOutputStream.flush();
+        Response.parseResponse(mBufferedReader);
+    }
 
 	private String addHeaders() {
 		return "CSeq: " + (++mCSeq) + "\r\n" +
