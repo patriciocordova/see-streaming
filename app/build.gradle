@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 20
+    compileSdkVersion 15
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "com.see.see"
+        applicationId "com.test.rmtptest"
         minSdkVersion 15
         targetSdkVersion 20
         versionCode 1
@@ -13,15 +13,15 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile files('libs/android-support-v4.jar')
-    compile files('libs/javacpp.jar')
     compile files('libs/javacv.jar')
+    compile files('libs/javacpp.jar')
+    compile files('libs/android-support-v4.jar')
+    compile files('libs/armeabi.jar')
 }

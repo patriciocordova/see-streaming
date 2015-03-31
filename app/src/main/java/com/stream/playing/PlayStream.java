@@ -27,9 +27,9 @@ public class PlayStream extends Activity {
 
             public void run() {
                 FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(url);
-                AudioReader audioReader = new AudioReader(frameGrabber.getSampleRate(), frameGrabber.getAudioChannels());
                 try {
                     frameGrabber.start();
+                    AudioReader audioReader = new AudioReader(frameGrabber.getSampleRate(), frameGrabber.getAudioChannels());
                     audioReader.start();
                     while (true) {
                         try {
