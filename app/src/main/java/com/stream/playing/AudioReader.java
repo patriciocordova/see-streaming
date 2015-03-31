@@ -24,9 +24,10 @@ public class AudioReader extends Thread {
 
         while(true) {
             captured_frame = PlayStream.captured_frame;
-            if (captured_frame != null) {
+            if (captured_frame != null && captured_frame.samples != null) {
                 try {
-                    samples = captured_frame.samples;
+                    samples = captured_frame.samples.clone();
+
                     if (aaD.track.getChannelCount() == 1)//For using with mono track
                     {
                         b = samples[0];

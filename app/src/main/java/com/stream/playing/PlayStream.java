@@ -12,6 +12,7 @@ import com.googlecode.javacv.FrameGrabber;
 public class PlayStream extends Activity {
 
     static Frame captured_frame;
+    static FFmpegFrameGrabber frameGrabber;
     private String url = Credentials.url;
 
     @Override
@@ -26,7 +27,7 @@ public class PlayStream extends Activity {
         new Thread(new Runnable() {
 
             public void run() {
-                FFmpegFrameGrabber frameGrabber = new FFmpegFrameGrabber(url);
+                frameGrabber = new FFmpegFrameGrabber(url);
                 try {
                     frameGrabber.start();
                     AudioReader audioReader = new AudioReader(frameGrabber.getSampleRate(), frameGrabber.getAudioChannels());
