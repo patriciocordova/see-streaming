@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/See.iml" filepath="$PROJECT_DIR$/See.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/see-streaming.iml" filepath="$PROJECT_DIR$/see-streaming.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sodaplayer-lib/sodaplayer-lib.iml" filepath="$PROJECT_DIR$/sodaplayer-lib/sodaplayer-lib.iml" />
     </modules>
   </component>
 </project>
