@@ -1,1 +1,1 @@
-include ':app', ':sodaplayer-lib'
+include ':app', ':sodaplayer-lib', ':vitamio'

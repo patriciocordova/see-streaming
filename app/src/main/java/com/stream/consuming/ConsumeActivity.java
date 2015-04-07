@@ -1,101 +1,66 @@
 package com.stream.consuming;
 
+
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Display;
+import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
+import android.widget.Toast;
 
+import com.stream.Credentials;
 import com.stream.R;
 
-import java.util.ArrayList;
-
-import info.sodapanda.sodaplayer.FFmpegVideoView;
-import info.sodapanda.sodaplayer.PlayCallback;
+import io.vov.vitamio.LibsChecker;
+import io.vov.vitamio.MediaPlayer;
+import io.vov.vitamio.widget.MediaController;
+import io.vov.vitamio.widget.VideoView;
 
 public class ConsumeActivity extends Activity {
-    private FFmpegVideoView player_surface;
 
-    int width;
-    int height;
-
-    Button button_start;
-    Button button_stop;
-
-    //EditText filename;
-
-    FrameLayout surface_frame;
+    private String pathToFileOrUrl = "rtmp://52.10.144.216:1935/live/myStream";
+    private VideoView mVideoView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        //filename = (EditText) findViewById(R.id.filename);
+    public void onCreate(Bundle icicle) {
+        super.onCreate(icicle);
 
-        //surfaceView
-        Display display = getWindowManager().getDefaultDisplay();
-        int screen_width = display.getWidth();
-        width=screen_width;
-        height = (int) (screen_width * 0.75f);
-        player_surface = new FFmpegVideoView(this,new PlayCallback() {
-            @Override
-            public void onConnecting() {
+        if (!LibsChecker.checkVitamioLibs(this))
+            return;
 
-            }
+        setContentView(R.layout.activity_video_stream);
+        mVideoView = (VideoView) findViewById(R.id.surface_view);
 
-            @Override
-            public void onConnected() {
+        if (pathToFileOrUrl == "") {
+            Toast.makeText(this, "Please set the video path for your media file", Toast.LENGTH_LONG).show();
+            return;
+        } else {
 
-            }
+            /*
+             * Alternatively,for streaming media you can use
+             * mVideoView.setVideoURI(Uri.parse(URLstring));
+             */
+            mVideoView.setVideoPath(pathToFileOrUrl);
+            mVideoView.setMediaController(new MediaController(this));
+            mVideoView.requestFocus();
 
-            @Override
-            public void onStop() {
+            mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    // optional need Vitamio 4.0
+                    mediaPlayer.setPlaybackSpeed(1.0f);
+                }
+            });
+        }
 
-            }
-        },320,240);
-        player_surface.setLayoutParams(new ViewGroup.LayoutParams(width, height));
-        surface_frame = (FrameLayout) findViewById(R.id.surface_frame);
-        surface_frame.addView(player_surface);
-
-        button_start = (Button) findViewById(R.id.button_start);
-        button_stop = (Button) findViewById(R.id.button_stop);
-
-        final ArrayList<String> rtmplist = new ArrayList<String>();
-        rtmplist.add(0,"rtmp://52.10.144.216:1935/live/myStream");
-
-        button_start.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                //String rtmpurl = filename.getText().toString();
-                /*if(rtmpurl != null && !(rtmpurl.equals(""))){
-                    rtmplist.add(0, rtmpurl);
-                }*/
-
-                player_surface.startPlayer(rtmplist);
-            }
-        });
-
-        button_stop.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                player_surface.stop();
-            }
-        });
     }
 
-    @Override
-    public void onBackPressed() {
-        player_surface.stop();
-        super.onBackPressed();
+    public void startPlay(View view) {
+        if (!TextUtils.isEmpty(pathToFileOrUrl)) {
+            mVideoView.setVideoPath(pathToFileOrUrl);
+        }
     }
 
-    static {
-        System.loadLibrary("ffmpeg");
-        System.loadLibrary("main");
+    public void openVideo(View View) {
+        mVideoView.setVideoPath(pathToFileOrUrl);
     }
 }
