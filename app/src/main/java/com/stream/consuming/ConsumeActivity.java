@@ -2,6 +2,7 @@
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,8 +20,15 @@ import io.vov.vitamio.widget.VideoView;
 
 public class ConsumeActivity extends Activity {
 
-    private String pathToFileOrUrl = "rtmp://52.10.144.216:1935/live/myStream";
+    private String pathToFileOrUrl;// = /*"rtmp://52.10.144.216:1935/live/myStream"*/;
     private VideoView mVideoView;
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        pathToFileOrUrl = intent.getStringExtra("videoUrl");
+    }
 
     @Override
     public void onCreate(Bundle icicle) {

@@ -4,8 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/See.iml" filepath="$PROJECT_DIR$/See.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/see-streaming.iml" filepath="$PROJECT_DIR$/see-streaming.iml" />
       <module fileurl="file://$PROJECT_DIR$/sodaplayer-lib/sodaplayer-lib.iml" filepath="$PROJECT_DIR$/sodaplayer-lib/sodaplayer-lib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/streaming.iml" filepath="$PROJECT_DIR$/streaming.iml" />
       <module fileurl="file://$PROJECT_DIR$/vitamio/vitamio.iml" filepath="$PROJECT_DIR$/vitamio/vitamio.iml" />
     </modules>
   </component>

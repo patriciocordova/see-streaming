@@ -24,4 +24,5 @@
     <string name="mediacontroller_play_pause">Play/Pause</string>
     <string name="play_video">Play</string>
     <string name="open_video">Open</string>
+    <string name="title_activity_landing_page">LandingPageActivity</string>
 </resources>
