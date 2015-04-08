@@ -34,11 +34,8 @@ public class ConsumeActivity extends Activity {
             Toast.makeText(this, "Please set the video path for your media file", Toast.LENGTH_LONG).show();
             return;
         } else {
-
-            /*
-             * Alternatively,for streaming media you can use
-             * mVideoView.setVideoURI(Uri.parse(URLstring));
-             */
+            //Alternatively,for streaming media you can use
+            //mVideoView.setVideoURI(Uri.parse(URLstring));
             mVideoView.setVideoPath(pathToFileOrUrl);
             mVideoView.setMediaController(new MediaController(this));
             mVideoView.requestFocus();
