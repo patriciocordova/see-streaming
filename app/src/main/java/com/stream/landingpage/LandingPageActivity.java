@@ -175,7 +175,7 @@ public class LandingPageActivity extends Activity {
 
                 final ListView subscriptionList = (ListView) findViewById(R.id.subscription_list);
                 final TextView subscriptionText = (TextView) findViewById(R.id.subscription_list_text);
-                final Set<String> subscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
+                Set<String> subscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
                 if (subscriptions != null && !subscriptions.isEmpty()) {
                     ArrayAdapter<String> subscriptionsAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
                             android.R.layout.simple_list_item_1, android.R.id.text1, new ArrayList<String>(subscriptions));
@@ -238,7 +238,7 @@ public class LandingPageActivity extends Activity {
                             oldSubscriptions.add(newSubscription);
                             StorageUtil.setStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey(), oldSubscriptions);
                             ArrayAdapter<String> subscriptionsAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
-                                    android.R.layout.simple_list_item_1, android.R.id.text1, new ArrayList<String>(subscriptions));
+                                    android.R.layout.simple_list_item_1, android.R.id.text1, new ArrayList<String>(oldSubscriptions));
                             subscriptionList.setAdapter(subscriptionsAdapter);
 
                             Toast.makeText(ActivityUtil.getMainActivity(), "Success!", Toast.LENGTH_SHORT).show();
