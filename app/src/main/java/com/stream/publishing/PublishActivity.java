@@ -5,20 +5,27 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.googlecode.javacv.FFmpegFrameRecorder;
@@ -29,6 +36,7 @@ import com.stream.R;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ShortBuffer;
+import java.util.List;
 
 import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
 
@@ -46,8 +54,8 @@ public class PublishActivity extends Activity implements OnClickListener {
     long startTime = 0;
 
     private int sampleAudioRateInHz = 44100;
-    private int imageWidth = 640;
-    private int imageHeight = 480;
+    private int imageWidth;
+    private int imageHeight;
     private int frameRate = 30;
 
     private Thread audioThread;
@@ -59,18 +67,100 @@ public class PublishActivity extends Activity implements OnClickListener {
     private IplImage yuvIplimage = null;
 
     private Button recordButton;
-    private LinearLayout mainLayout;
+    private FrameLayout mainLayout;
+
+    private List<Camera.Size> cameraVideoResolutions;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //Remove notification bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+
         ffmpeg_link = Credentials.getPublishUrl();
+
+        setBestResolution();
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_publish);
 
         initLayout();
         initRecorder();
+    }
+
+    public void setBestResolution(){
+        if(cameraVideoResolutions == null){
+            cameraVideoResolutions = getBackCameraVideoResolutions();
+        }
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mMobile = connManager .getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+        if (mWifi.isConnected()){
+            Camera.Size size = getResolutionWifi();
+            imageWidth = size.width;
+            imageHeight = size.height;
+        }else {
+            if (mMobile.isConnected()) {
+                Camera.Size size = getResolutionMobile();
+                imageWidth = size.width;
+                imageHeight = size.height;
+            }
+        }
+    }
+
+    public Camera.Size getResolutionMobile(){
+        int listSize = cameraVideoResolutions.size();
+        int lastIndex = listSize - 1;
+        if(listSize > 0){
+            switch (listSize){
+                case 1: return cameraVideoResolutions.get(lastIndex - 0);
+                case 2: return cameraVideoResolutions.get(lastIndex - 0);
+                case 3: return cameraVideoResolutions.get(lastIndex - 1);
+                case 4: return cameraVideoResolutions.get(lastIndex - 1);
+                case 5: return cameraVideoResolutions.get(lastIndex - 2);
+                default: return cameraVideoResolutions.get(lastIndex - 2);
+            }
+        }
+        return null;
+    }
+
+    public Camera.Size getResolutionWifi(){
+        int listSize = cameraVideoResolutions.size();
+        int lastIndex = listSize - 1;
+        if(listSize > 0){
+            switch (listSize){
+                case 1: return cameraVideoResolutions.get(lastIndex - 0);
+                case 2: return cameraVideoResolutions.get(lastIndex - 1);
+                default: return cameraVideoResolutions.get(2);
+            }
+        }
+        return null;
+    }
+
+    public List<Camera.Size> getBackCameraVideoResolutions(){
+        int noOfCameras = Camera.getNumberOfCameras();
+        float maxResolution = -1;
+        long pixelCount = -1;
+        List<Camera.Size> sizes = null;
+        for (int i = 0;i < noOfCameras;i++)
+        {
+            Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, cameraInfo);
+
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK)
+            {
+                Camera camera = Camera.open(i);;
+                Camera.Parameters cameraParams = camera.getParameters();
+                sizes = cameraParams.getSupportedVideoSizes();
+                camera.release();
+            }
+        }
+
+        return sizes;
     }
 
     @Override
@@ -104,7 +194,7 @@ public class PublishActivity extends Activity implements OnClickListener {
 
     private void initLayout() {
 
-        mainLayout = (LinearLayout) this.findViewById(R.id.record_layout);
+        mainLayout = (FrameLayout) this.findViewById(R.id.record_layout);
 
         recordButton = (Button) findViewById(R.id.recorder_control);
         recordButton.setText("Start");
@@ -112,8 +202,15 @@ public class PublishActivity extends Activity implements OnClickListener {
 
         cameraView = new CameraView(this);
 
-        LinearLayout.LayoutParams layoutParam = new LinearLayout.LayoutParams(imageWidth, imageHeight);
-        mainLayout.addView(cameraView, layoutParam);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+
+        LinearLayout.LayoutParams layoutParam = new LinearLayout.LayoutParams(width, height);
+        mainLayout.addView(cameraView, 0, layoutParam);
+
         Log.v(LOG_TAG, "added cameraView to mainLayout");
     }
 
@@ -299,7 +396,6 @@ public class PublishActivity extends Activity implements OnClickListener {
                 frameRate = currentParams.getPreviewFrameRate();
 
                 bitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ALPHA_8);
-
 
 	        	/*
 				Log.v(LOG_TAG,"Creating previewBuffer size: " + imageWidth * imageHeight * ImageFormat.getBitsPerPixel(currentParams.getPreviewFormat())/8);
