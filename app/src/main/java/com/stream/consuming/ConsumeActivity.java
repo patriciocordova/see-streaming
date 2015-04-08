@@ -1,4 +1,4 @@
-/*package com.stream.consuming;
+package com.stream.consuming;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -27,7 +27,7 @@ public class ConsumeActivity extends Activity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        pathToFileOrUrl = intent.getStringExtra("videoUrl");
+       // pathToFileOrUrl = intent.getStringExtra("videoUrl");
     }
 
     @Override
@@ -46,6 +46,8 @@ public class ConsumeActivity extends Activity {
 
         setContentView(R.layout.activity_video_stream);
         mVideoView = (VideoView) findViewById(R.id.surface_view);
+
+        pathToFileOrUrl = getIntent().getStringExtra("videoUrl");
 
         if (pathToFileOrUrl == "") {
             Toast.makeText(this, "Please set the video path for your media file", Toast.LENGTH_LONG).show();
@@ -74,4 +76,4 @@ public class ConsumeActivity extends Activity {
         }
     }
 }
-*/
+
