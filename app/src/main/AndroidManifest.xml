@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <android:uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -24,8 +25,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        tools:replace="android:label" >
+        android:theme="@style/AppTheme" >
 
         <activity
             android:name=".landingpage.LandingPageActivity"
@@ -38,13 +38,13 @@
         </activity>
 
         <activity
-            android:name=".consuming.ConsumeActivity"
+            android:name=".publishing.PublishActivity"
             android:label="@string/app_name" >
         </activity>
 
         <activity
-            android:name=".publishing.PublishActivity"
-            android:label="Publish" >
+            android:name=".consuming.ConsumeActivity"
+            android:label="@string/app_name" >
         </activity>
 
         <activity

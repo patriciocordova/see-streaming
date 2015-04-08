@@ -1,11 +1,13 @@
-package com.stream.consuming;
-
+/*package com.stream.consuming;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.stream.Credentials;
@@ -32,8 +34,15 @@ public class ConsumeActivity extends Activity {
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //Remove notification bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
         if (!LibsChecker.checkVitamioLibs(this))
             return;
+
 
         setContentView(R.layout.activity_video_stream);
         mVideoView = (VideoView) findViewById(R.id.surface_view);
@@ -42,11 +51,8 @@ public class ConsumeActivity extends Activity {
             Toast.makeText(this, "Please set the video path for your media file", Toast.LENGTH_LONG).show();
             return;
         } else {
-
-            /*
-             * Alternatively,for streaming media you can use
-             * mVideoView.setVideoURI(Uri.parse(URLstring));
-             */
+            //Alternatively,for streaming media you can use
+            //mVideoView.setVideoURI(Uri.parse(URLstring));
             mVideoView.setVideoPath(pathToFileOrUrl);
             mVideoView.setMediaController(new MediaController(this));
             mVideoView.requestFocus();
@@ -67,8 +73,5 @@ public class ConsumeActivity extends Activity {
             mVideoView.setVideoPath(pathToFileOrUrl);
         }
     }
-
-    public void openVideo(View View) {
-        mVideoView.setVideoPath(pathToFileOrUrl);
-    }
 }
+*/

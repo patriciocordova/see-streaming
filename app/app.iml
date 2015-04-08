@@ -89,7 +89,6 @@
     <orderEntry type="library" exported="" name="javacpp" level="project" />
     <orderEntry type="library" exported="" name="armeabi" level="project" />
     <orderEntry type="library" exported="" name="javacv" level="project" />
-    <orderEntry type="module" module-name="vitamio" exported="" />
   </component>
 </module>
 
