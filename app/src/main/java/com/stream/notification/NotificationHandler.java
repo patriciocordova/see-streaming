@@ -32,7 +32,7 @@ public final class NotificationHandler {
     private static NotificationHandler INSTANCE = new NotificationHandler();
 
     private final int NOTIFY_ME_ID = 1337;
-    private List<VideoInfo> videos;
+    //private List<VideoInfo> videos;
     private Timer timer;
 
     private boolean isPaused;
@@ -42,7 +42,7 @@ public final class NotificationHandler {
 
 
     private NotificationHandler(){
-        videos = loadVideos();
+        //videos = loadVideos();
     }
 
     public static NotificationHandler getInstance(){
@@ -64,15 +64,17 @@ public final class NotificationHandler {
                     PollResponse response = (PollResponse)poll.getResponse();
                     if (response.isSuccess()) {
                         newVideoPath = response.getVideoUrl();
-                    }
-                    else {
-                        // Just for testing play video from phone when no streams are found
-                        if (!videos.isEmpty()) {
-                            newVideoPath = videos.get(0).filePath;
+                        if(newVideoPath != null && !newVideoPath.isEmpty()) {
+                            createNotification();
+                        }
+                        else{
+                            System.out.println("Didnt work!!!!!");
                         }
                     }
+                    else{
+                        System.out.println("Didnt work!!!!!");
+                    }
 
-                    createNotification();
                 }
             }
         }, 1000, 30000);

@@ -88,7 +88,7 @@ public final class ServiceUtil {
     static{
         JSONObject params = new JSONObject();
         try {
-            params.put(ServiceUtil.PayloadKeys.UserId.getKey(), StorageUtil.getStringValue(ServiceUtil.PayloadKeys.UserId.getKey()));
+            params.put(PayloadKeys.ChannelName.getKey(), StorageUtil.getStringValue(PayloadKeys.ChannelName.getKey()));
             POLL_STRING_ENTITY = new StringEntity(params.toString(), ServiceUtil.DEFAULT_CHARSET);
         }
         catch (Exception e){
