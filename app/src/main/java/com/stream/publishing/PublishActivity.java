@@ -89,6 +89,8 @@ public class PublishActivity extends Activity implements OnClickListener {
 
         initLayout();
         initRecorder();
+
+        //recordVideo();
     }
 
     public void setBestResolution(){
@@ -288,6 +290,10 @@ public class PublishActivity extends Activity implements OnClickListener {
 
     @Override
     public void onClick(View v) {
+        recordVideo();
+    }
+
+    public void recordVideo(){
         if (!recording) {
             startRecording();
             Log.w(LOG_TAG, "Start Button Pushed");

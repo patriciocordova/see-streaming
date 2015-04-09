@@ -11,7 +11,7 @@ import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.stream.R;
-import com.stream.consuming.ConsumeActivity;
+//import com.stream.consuming.ConsumeActivity;
 import com.stream.publishing.PublishActivity;
 import com.stream.service.request.Poll;
 import com.stream.service.response.PollResponse;
@@ -104,9 +104,11 @@ public final class NotificationHandler {
             //String mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
             //intent.setDataAndType(Uri.fromFile(file), mimeType);
 
+
+            /*
             Intent intent = new Intent(ActivityUtil.getMainActivity(), ConsumeActivity.class);
             intent.putExtra("videoUrl", newVideoPath);
-
+            
 
             PendingIntent pendingIntent = PendingIntent.getActivity(ActivityUtil.getMainActivity(), 0, intent, 0);
 
@@ -118,7 +120,7 @@ public final class NotificationHandler {
             NotificationManager mgr = (NotificationManager)ActivityUtil.getMainActivity().getSystemService(Context.NOTIFICATION_SERVICE);
             mgr.notify(NOTIFY_ME_ID, notification);
 
-
+            */
         }
         catch (Exception e){
             Toast.makeText(ActivityUtil.getMainActivity(), "Could not play video : " + newVideoPath, Toast.LENGTH_SHORT).show();
