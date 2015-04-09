@@ -1,4 +1,4 @@
-/*package com.stream.consuming;
+package com.stream.consuming;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -20,7 +20,7 @@ import io.vov.vitamio.widget.VideoView;
 
 public class ConsumeActivity extends Activity {
 
-    private String pathToFileOrUrl;// "rtmp://52.10.144.216:1935/live/myStream";
+    private String pathToFileOrUrl;
     private VideoView mVideoView;
 
     @Override
@@ -77,4 +77,3 @@ public class ConsumeActivity extends Activity {
     }
 }
 
-*/
