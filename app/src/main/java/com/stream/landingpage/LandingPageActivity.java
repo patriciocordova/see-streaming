@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.SparseBooleanArray;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -19,6 +21,7 @@ import com.stream.R;
 import com.stream.notification.NotificationHandler;
 import com.stream.publishing.PublishActivity;
 import com.stream.service.request.CreateChannel;
+import com.stream.service.request.DeleteAll;
 import com.stream.service.request.GetAvailableChannels;
 import com.stream.service.request.Subscribe;
 import com.stream.service.response.AbstractResponse;
@@ -34,7 +37,7 @@ import java.util.Set;
 
 public class LandingPageActivity extends Activity {
 
-    @Override
+    /*@Override
     protected void onNewIntent(Intent intent) {
 
         if(intent.getAction().equals(android.content.Intent.ACTION_VIEW)){
@@ -43,16 +46,16 @@ public class LandingPageActivity extends Activity {
 
         super.onNewIntent(intent);
 
-    }
+    }*/
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == 0){
             NotificationHandler.getInstance().resume();
         }
 
         super.onActivityResult(requestCode, resultCode, data);
-    }
+    }*/
 
     private void loadPublishActivity(){
         Intent intent = new Intent(this, PublishActivity.class);
@@ -97,7 +100,7 @@ public class LandingPageActivity extends Activity {
 
             subscriptionList.setAdapter(subscriptionListAdapter);
 
-            NotificationHandler.getInstance().start();
+            //NotificationHandler.getInstance().start();
         }
 
         channelName_EditText.setOnClickListener(new View.OnClickListener() {
@@ -243,9 +246,9 @@ public class LandingPageActivity extends Activity {
 
                             Toast.makeText(ActivityUtil.getMainActivity(), "Success!", Toast.LENGTH_SHORT).show();
 
-                            if (!NotificationHandler.getInstance().hasStarted()) {
-                                NotificationHandler.getInstance().start();
-                            }
+                            /*if (!NotificationHandler.getInstance().hasStarted()) {
+                                //NotificationHandler.getInstance().start();
+                            }*/
 
                             subscriptionList.setVisibility(View.VISIBLE);
                             subscriptionText.setVisibility(View.VISIBLE);
@@ -263,5 +266,44 @@ public class LandingPageActivity extends Activity {
                 loadPublishActivity();
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_landing_page, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.poll) {
+            NotificationHandler.getInstance().start();
+            return true;
+        }
+        else if (id == R.id.reset){
+            resetEverything();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void resetEverything() {
+        // call server delete all
+        DeleteAll deleteAll = new DeleteAll();
+        deleteAll.run();
+        // if true
+
+        AbstractResponse response = deleteAll.getResponse();
+        if(response.isSuccess()) {
+
+            // remove all shared prefs
+            getApplicationContext().getSharedPreferences("SeeSetup", 0).edit().clear().commit();
+        }
+        else{
+            Toast.makeText(this, response.getError(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

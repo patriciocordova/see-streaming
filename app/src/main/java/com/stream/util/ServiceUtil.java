@@ -3,6 +3,7 @@ package com.stream.util;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
@@ -31,6 +32,7 @@ public final class ServiceUtil {
     public static final String GET_CHANNELS = REMOTE_URL_HOST + "/see/getChannels";
     public static final String SUBSCRIBE = REMOTE_URL_HOST + "/see/subscribe";
     public static final String POLL = REMOTE_URL_HOST + "/see/poll";
+    public static final String DELETE_ALL = REMOTE_URL_HOST + "/see/deleteAll";
 
 
     public static final String DEFAULT_CHARSET = "UTF-8";
@@ -96,6 +98,19 @@ public final class ServiceUtil {
     }
 
     public static StringEntity getPollRequestEntity(){
+
+        StringEntity POLL_STRING_ENTITY = null;
+        JSONObject params = new JSONObject();
+        try {
+            params.put(PayloadKeys.ChannelName.getKey(), StorageUtil.getStringValue(PayloadKeys.ChannelName.getKey()));
+            POLL_STRING_ENTITY = new StringEntity(params.toString(), ServiceUtil.DEFAULT_CHARSET);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
         return POLL_STRING_ENTITY;
     }
 

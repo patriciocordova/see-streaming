@@ -35,7 +35,7 @@ public final class NotificationHandler {
     //private List<VideoInfo> videos;
     private Timer timer;
 
-    private boolean isPaused;
+    //private boolean isPaused;
 
     private Cursor cursor;
     private String newVideoPath = "";
@@ -52,7 +52,7 @@ public final class NotificationHandler {
 
     public void start(){
         // Poll
-        timer = new Timer();
+        /*timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -65,7 +65,13 @@ public final class NotificationHandler {
                     if (response.isSuccess()) {
                         newVideoPath = response.getVideoUrl();
                         if(newVideoPath != null && !newVideoPath.isEmpty()) {
+                            System.out.println(newVideoPath);
                             createNotification();
+                            try {
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                         else{
                             System.out.println("Didnt work!!!!!");
@@ -77,10 +83,22 @@ public final class NotificationHandler {
 
                 }
             }
-        }, 1000, 30000);
+        }, 1000, 10000);*/
+
+        Poll poll = new Poll();
+        poll.run();
+
+        PollResponse response = (PollResponse)poll.getResponse();
+        if (response.isSuccess()) {
+            newVideoPath = response.getVideoUrl();
+            if (newVideoPath != null && !newVideoPath.isEmpty()) {
+                System.out.println(newVideoPath);
+                createNotification();
+            }
+        }
     }
 
-    public boolean hasStarted(){
+    /*public boolean hasStarted(){
         return (timer != null);
     }
 
@@ -90,7 +108,7 @@ public final class NotificationHandler {
 
     public void resume(){
         isPaused = false;
-    }
+    }*/
 
 
 
