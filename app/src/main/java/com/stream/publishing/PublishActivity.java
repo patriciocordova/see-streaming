@@ -137,7 +137,7 @@ public class PublishActivity extends Activity implements OnClickListener {
             switch (listSize){
                 case 1: return cameraVideoResolutions.get(lastIndex - 0);
                 case 2: return cameraVideoResolutions.get(lastIndex - 1);
-                default: return cameraVideoResolutions.get(2);
+                default: return cameraVideoResolutions.get(3);
             }
         }
         return null;
@@ -232,14 +232,15 @@ public class PublishActivity extends Activity implements OnClickListener {
         Log.v(LOG_TAG, "FFmpegFrameRecorder: " + ffmpeg_link + " imageWidth: " + imageWidth + " imageHeight " + imageHeight);
 
         recorder.setFormat("flv");
+
         Log.v(LOG_TAG, "recorder.setFormat(\"flv\")");
 
         recorder.setSampleRate(sampleAudioRateInHz);
-        Log.v(LOG_TAG, "recorder.setSampleRate(sampleAudioRateInHz)");
+        Log.v(LOG_TAG, "recorder.setSampleRate(" + sampleAudioRateInHz + ")");
 
         // re-set in the surface changed method as well
         recorder.setFrameRate(frameRate);
-        Log.v(LOG_TAG, "recorder.setFrameRate(frameRate)");
+        Log.v(LOG_TAG, "recorder.setFrameRate("+ frameRate +")");
 
         // Create audio recording thread
         audioRecordRunnable = new AudioRecordRunnable();
@@ -249,10 +250,17 @@ public class PublishActivity extends Activity implements OnClickListener {
     // Start the capture
     public void startRecording() {
         try {
+            if(recorder == null){
+                initRecorder();
+            }
             recorder.start();
             startTime = System.currentTimeMillis();
             recording = true;
             audioThread.start();
+
+            LinearLayout layout = (LinearLayout) findViewById(R.id.linear_layout);
+            if(null!=layout) //for safety only  as you are doing onClick
+                layout.removeView(recordButton);
         } catch (FFmpegFrameRecorder.Exception e) {
             e.printStackTrace();
         }
@@ -412,6 +420,10 @@ public class PublishActivity extends Activity implements OnClickListener {
 
                 camera.startPreview();
                 previewRunning = true;
+
+
+                Log.v(LOG_TAG,"Starting video record!");
+                recordVideo();
             }
             catch (IOException e) {
                 Log.v(LOG_TAG,e.getMessage());
@@ -520,6 +532,8 @@ public class PublishActivity extends Activity implements OnClickListener {
 
                     // Record the image into FFmpegFrameRecorder
                     recorder.record(yuvIplimage);
+
+                    //Log.v(LOG_TAG,"Recording frame!!!!");
 
                 } catch (FFmpegFrameRecorder.Exception e) {
                     Log.v(LOG_TAG,e.getMessage());

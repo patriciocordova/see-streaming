@@ -1,4 +1,4 @@
-package com.stream.consuming;
+/*package com.stream.consuming;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -48,6 +48,7 @@ public class ConsumeActivity extends Activity {
         mVideoView = (VideoView) findViewById(R.id.surface_view);
 
         pathToFileOrUrl = getIntent().getStringExtra("videoUrl");
+        //pathToFileOrUrl = "rtmp://52.10.144.216:1935/live/myStream";
 
         if (pathToFileOrUrl == "") {
             Toast.makeText(this, "Please set the video path for your media file", Toast.LENGTH_LONG).show();
@@ -75,5 +76,4 @@ public class ConsumeActivity extends Activity {
             mVideoView.setVideoPath(pathToFileOrUrl);
         }
     }
-}
-
+}*/
