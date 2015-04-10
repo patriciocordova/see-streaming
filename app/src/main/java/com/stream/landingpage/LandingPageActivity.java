@@ -18,6 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.stream.R;
+
+import com.stream.gcm.GCM;
 import com.stream.notification.NotificationHandler;
 import com.stream.publishing.PublishActivity;
 import com.stream.service.request.CreateChannel;
@@ -37,31 +39,251 @@ import java.util.Set;
 
 public class LandingPageActivity extends Activity {
 
-    /*@Override
-    protected void onNewIntent(Intent intent) {
 
-        if(intent.getAction().equals(android.content.Intent.ACTION_VIEW)){
-            NotificationHandler.getInstance().pause();
+    private void initializeChannelNameEditTest(){
+
+        EditText channelName_EditText = (EditText) findViewById(R.id.channel_name);
+        String channelName = StorageUtil.getStringValue(ServiceUtil.PayloadKeys.ChannelName.getKey());
+        if(channelName != null && !channelName.isEmpty()) {
+            channelName_EditText.setText("Your Channel Name is : " + channelName);
+            channelName_EditText.setEnabled(false);
+
+            // Remove create channel button when channel already exists
+            Button createChannel = (Button) findViewById(R.id.create_channel);
+            createChannel.setVisibility(View.GONE);
+        }
+        else {
+            channelName_EditText.setText("Enter Channel Name");
         }
 
-        super.onNewIntent(intent);
+        // On clicking the channel name, clear the default text
+        channelName_EditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-    }*/
-
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == 0){
-            NotificationHandler.getInstance().resume();
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }*/
-
-    private void loadPublishActivity(){
-        Intent intent = new Intent(this, PublishActivity.class);
-        startActivity(intent);
-        finish();
+                if(v instanceof  EditText) {
+                    EditText editText = (EditText)v;
+                    if (editText.getText().toString().equals("Enter Channel Name")) {
+                        editText.setText("");
+                    }
+                }
+            }
+        });
     }
+
+    private void initializeSubscriptionsList(){
+
+        Set<String> storedSubscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
+
+        ListView subscriptionList = (ListView) findViewById(R.id.subscription_list);
+        TextView subscriptionText = (TextView) findViewById(R.id.subscription_list_text);
+
+        if (storedSubscriptions != null && !storedSubscriptions.isEmpty()) {
+            subscriptionList.setVisibility(View.VISIBLE);
+            subscriptionText.setVisibility(View.VISIBLE);
+
+            List<String> subscriptions = new ArrayList<String>(storedSubscriptions);
+
+            ArrayAdapter<String> subscriptionListAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
+                    android.R.layout.simple_list_item_1, android.R.id.text1, subscriptions);
+
+            subscriptionList.setAdapter(subscriptionListAdapter);
+        }
+    }
+
+    private void initializeCreateChannel(){
+
+        Button createChannel = (Button) findViewById(R.id.create_channel);
+        createChannel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                EditText channelName_EditText = (EditText) findViewById(R.id.channel_name);
+                String channelName = channelName_EditText.getText().toString();
+                if (channelName == null || channelName.isEmpty()) {
+                    Toast.makeText(ActivityUtil.getMainActivity(), "Please enter a channel name", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    CreateChannel createChannel = new CreateChannel(channelName);
+                    createChannel.run();
+
+                    AbstractResponse response = createChannel.getResponse();
+                    if (!response.isSuccess()) {
+                        Toast.makeText(ActivityUtil.getMainActivity(), response.getError(), Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        // Store channel name
+                        //StorageUtil.setBooleanValue(StorageUtil.SharedPreferenceKeys.ChannelCreated.getKey(), true);
+                        StorageUtil.setStringValue(ServiceUtil.PayloadKeys.ChannelName.getKey(), channelName);
+                        Toast.makeText(ActivityUtil.getMainActivity(), "Success!", Toast.LENGTH_SHORT).show();
+
+                        // Change channel name edit text and Remove button, once channel is created
+                        if(v instanceof  Button){
+                            Button button = (Button)v;
+                            button.setVisibility(View.GONE);
+                        }
+
+                        channelName_EditText.setText("Your Channel Name is : " + channelName);
+                        channelName_EditText.setEnabled(false);
+                    }
+                }
+            }
+        });
+    }
+
+    private void loseTheKeyboard(){
+        // Make keyboard disappear
+        Button subscribe = (Button) findViewById(R.id.subscribe_channel);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(subscribe.getWindowToken(), 0);
+    }
+
+    private List<String> getChannelsList(){
+        GetAvailableChannels getAvailableChannels = new GetAvailableChannels();
+        getAvailableChannels.run();
+        GetAvailableChannelsResponse response = (GetAvailableChannelsResponse)getAvailableChannels.getResponse();
+        if(!response.isSuccess()){
+            Toast.makeText(ActivityUtil.getMainActivity(), response.getError(), Toast.LENGTH_SHORT).show();
+        }
+
+        List<String> channelsList = response.getChannelsList();
+
+        if (channelsList == null || channelsList.isEmpty()) {
+            Toast.makeText(ActivityUtil.getMainActivity(), "No channels to subscribe!", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        // remove current user's channel before showing subscriptions
+        String channelName = StorageUtil.getStringValue(ServiceUtil.PayloadKeys.ChannelName.getKey());
+        if (channelName != null) {
+            channelsList.remove(channelName.trim());
+        }
+
+        // remove any subscribed channels
+        Set<String> currentSubscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
+        if(currentSubscriptions != null && !currentSubscriptions.isEmpty()){
+            channelsList.removeAll(currentSubscriptions);
+        }
+
+        if (channelsList == null || channelsList.isEmpty()) {
+            Toast.makeText(ActivityUtil.getMainActivity(), "No channels to subscribe!", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        return channelsList;
+    }
+
+
+    private void setAvailableChannelList(List<String> channelsList){
+        ListView channelList = (ListView) findViewById(R.id.channels_list);
+        TextView channelText = (TextView) findViewById(R.id.channels_list_text);
+
+        ArrayAdapter<String> channelListAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
+                android.R.layout.simple_list_item_1, android.R.id.text1, channelsList);
+
+        channelList.setAdapter(channelListAdapter);
+
+        channelList.setVisibility(View.VISIBLE);
+        channelText.setVisibility(View.VISIBLE);
+    }
+
+    private void initializeSubscribeToChannel(){
+        Button subscribe = (Button) findViewById(R.id.subscribe_channel);
+        subscribe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                loseTheKeyboard();
+
+                List<String> channelsList = getChannelsList();
+
+                if(channelsList != null) {
+                    setAvailableChannelList(channelsList);
+                }
+            }
+        });
+    }
+
+    private void initializeStartVideo(){
+        Button start = (Button) findViewById(R.id.start_video);
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ActivityUtil.getMainActivity(), PublishActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+    private void initializeSelectFromSubscriptionList() {
+
+        ListView channelList = (ListView) findViewById(R.id.channels_list);
+        channelList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Object o = parent.getItemAtPosition(position);
+                String selectedChannel = null;
+                if(o instanceof String){
+                    selectedChannel = (String)o;
+                }
+                else{
+                    Toast.makeText(ActivityUtil.getMainActivity(), "Please make a valid selection", Toast.LENGTH_SHORT).show();;
+                    return;
+                }
+
+                Subscribe subscribe = new Subscribe(selectedChannel);
+                subscribe.run();
+
+                AbstractResponse response = subscribe.getResponse();
+                if (!response.isSuccess()) {
+                    Toast.makeText(ActivityUtil.getMainActivity(), response.getError(), Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Set<String> oldSubscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
+                    if (oldSubscriptions == null || oldSubscriptions.isEmpty()) {
+                        oldSubscriptions = new HashSet<String>(1);
+                    }
+
+                    oldSubscriptions.add(selectedChannel);
+                    StorageUtil.setStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey(), oldSubscriptions);
+
+                    ArrayAdapter<String> subscriptionsAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
+                            android.R.layout.simple_list_item_1, android.R.id.text1, new ArrayList<String>(oldSubscriptions));
+                    ListView subscriptionList = (ListView) findViewById(R.id.subscription_list);
+                    subscriptionList.setAdapter(subscriptionsAdapter);
+                    subscriptionList.setVisibility(View.VISIBLE);
+
+                    TextView subscriptionText = (TextView) findViewById(R.id.subscription_list_text);
+                    subscriptionText.setVisibility(View.VISIBLE);
+
+                    // TODO Remove subscription from available channels list
+
+
+
+                    Toast.makeText(ActivityUtil.getMainActivity(), "Success!", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+    }
+
+    private void initialize(){
+        initializeChannelNameEditTest();
+
+        initializeSubscriptionsList();
+
+        initializeCreateChannel();
+
+        initializeSubscribeToChannel();
+
+        initializeStartVideo();
+
+        initializeSelectFromSubscriptionList();
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,202 +292,12 @@ public class LandingPageActivity extends Activity {
 
         ActivityUtil.setMainActivity(this);
 
-        final Button createChannel = (Button) findViewById(R.id.create_channel);
-        final EditText channelName_EditText = (EditText) findViewById(R.id.channel_name);
-
-        String channelName = StorageUtil.getStringValue(ServiceUtil.PayloadKeys.ChannelName.getKey());
-        if(channelName != null && !channelName.isEmpty()) {
-            channelName_EditText.setText("Your Channel Name is : " + channelName);
-            channelName_EditText.setEnabled(false);
-
-            createChannel.setVisibility(View.GONE);
-        }
-        else {
-            channelName_EditText.setText("Enter Channel Name");
+        boolean status = GCM.getInstance().registerGCM();
+        if(!status){
+            Toast.makeText(this, "GCM Unavailable. Use Poll", Toast.LENGTH_SHORT).show();
         }
 
-        Set<String> subscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
-
-        final ListView subscriptionList = (ListView) findViewById(R.id.subscription_list);
-        final TextView subscriptionText = (TextView) findViewById(R.id.subscription_list_text);
-
-        if (subscriptions != null && !subscriptions.isEmpty()) {
-            subscriptionList.setVisibility(View.VISIBLE);
-            subscriptionText.setVisibility(View.VISIBLE);
-
-            List<String> subs = new ArrayList<String>(subscriptions);
-
-            ArrayAdapter<String> subscriptionListAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
-                    android.R.layout.simple_list_item_1, android.R.id.text1, subs);
-
-            subscriptionList.setAdapter(subscriptionListAdapter);
-
-            //NotificationHandler.getInstance().start();
-        }
-
-        channelName_EditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (channelName_EditText.getText().toString().equals("Enter Channel Name")) {
-                    channelName_EditText.setText("");
-                }
-            }
-        });
-
-        createChannel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                if (StorageUtil.getBooleanValue(StorageUtil.SharedPreferenceKeys.ChannelCreated.getKey())) {
-                    Toast.makeText(ActivityUtil.getMainActivity(), "Only one channel allowed per user", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String channelName = channelName_EditText.getText().toString();
-                if (channelName == null || channelName.isEmpty()) {
-                    Toast.makeText(ActivityUtil.getMainActivity(), "Please enter a channel name", Toast.LENGTH_SHORT).show();
-                } else {
-                    CreateChannel createChannel = new CreateChannel(channelName);
-                    createChannel.run();
-
-                    AbstractResponse response = createChannel.getResponse();
-                    if (!response.isSuccess()) {
-                        Toast.makeText(ActivityUtil.getMainActivity(), response.getError(), Toast.LENGTH_SHORT).show();
-                    } else {
-                        StorageUtil.setBooleanValue(StorageUtil.SharedPreferenceKeys.ChannelCreated.getKey(), true);
-                        StorageUtil.setStringValue(ServiceUtil.PayloadKeys.ChannelName.getKey(), channelName);
-                        Toast.makeText(ActivityUtil.getMainActivity(), "Success!", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
-
-        final Button subscribe = (Button) findViewById(R.id.subscribe_channel);
-        subscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-
-                GetAvailableChannels getAvailableChannels = new GetAvailableChannels();
-                getAvailableChannels.run();
-
-                GetAvailableChannelsResponse response = (GetAvailableChannelsResponse)getAvailableChannels.getResponse();
-                if(!response.isSuccess()){
-                    Toast.makeText(ActivityUtil.getMainActivity(), response.getError(), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                List<String> channelsList = response.getChannelsList();
-
-                // remove current user's channel before showing subscriptions
-                String channelName = StorageUtil.getStringValue(ServiceUtil.PayloadKeys.ChannelName.getKey());
-                if (channelName != null) {
-                    channelsList.remove(channelName.trim());
-                }
-
-                // remove subscribed channels
-                Set<String> currentSubscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
-                if(currentSubscriptions != null && !currentSubscriptions.isEmpty()){
-                    channelsList.removeAll(currentSubscriptions);
-                }
-
-                if (channelsList == null || channelsList.isEmpty()) {
-                    Toast.makeText(ActivityUtil.getMainActivity(), "No channels to subscribe!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                final ListView subscriptionList = (ListView) findViewById(R.id.subscription_list);
-                final TextView subscriptionText = (TextView) findViewById(R.id.subscription_list_text);
-                Set<String> subscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
-                if (subscriptions != null && !subscriptions.isEmpty()) {
-                    ArrayAdapter<String> subscriptionsAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
-                            android.R.layout.simple_list_item_1, android.R.id.text1, new ArrayList<String>(subscriptions));
-                    subscriptionList.setAdapter(subscriptionsAdapter);
-                    subscriptionList.setVisibility(View.VISIBLE);
-                    subscriptionText.setVisibility(View.VISIBLE);
-                }
-
-
-
-                final ListView channelList = (ListView) findViewById(R.id.channels_list);
-                final TextView channelText = (TextView) findViewById(R.id.channels_list_text);
-
-                ArrayAdapter<String> channelListAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
-                        android.R.layout.simple_list_item_1, android.R.id.text1, channelsList);
-
-                channelList.setAdapter(channelListAdapter);
-                channelList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-
-                channelList.setVisibility(View.VISIBLE);
-                channelText.setVisibility(View.VISIBLE);
-
-                channelList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view,
-                                            int position, long id) {
-
-                        SparseBooleanArray checked = channelList.getCheckedItemPositions();
-                        /*Set<String> newSubscriptions = new HashSet<String>();
-                        for (int i = 0; i < checked.size(); i++) {
-                            int pos = checked.keyAt(i);
-                            if (checked.valueAt(i)) {
-                                String itemValue = (String) channelList.getItemAtPosition(position);
-                                newSubscriptions.add(itemValue);
-                            }
-                        }*/
-
-                        String newSubscription = null;
-                        for (int i = 0; i < checked.size(); i++) {
-                            int pos = checked.keyAt(i);
-                            if (checked.valueAt(i)) {
-                                newSubscription = (String) channelList.getItemAtPosition(position);
-                            }
-                        }
-
-                        Subscribe subscribe = new Subscribe(newSubscription);
-                        subscribe.run();
-
-                        AbstractResponse response = subscribe.getResponse();
-                        if (!response.isSuccess()) {
-                            Toast.makeText(ActivityUtil.getMainActivity(), response.getError(), Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            Set<String> oldSubscriptions = StorageUtil.getStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey());
-                            if(oldSubscriptions == null){
-                                oldSubscriptions = new HashSet<String>(1);
-                            }
-
-                            oldSubscriptions.add(newSubscription);
-                            StorageUtil.setStringValues(ServiceUtil.PayloadKeys.Subscriptions.getKey(), oldSubscriptions);
-                            ArrayAdapter<String> subscriptionsAdapter = new ArrayAdapter<String>(ActivityUtil.getMainActivity(),
-                                    android.R.layout.simple_list_item_1, android.R.id.text1, new ArrayList<String>(oldSubscriptions));
-                            subscriptionList.setAdapter(subscriptionsAdapter);
-
-                            Toast.makeText(ActivityUtil.getMainActivity(), "Success!", Toast.LENGTH_SHORT).show();
-
-                            /*if (!NotificationHandler.getInstance().hasStarted()) {
-                                //NotificationHandler.getInstance().start();
-                            }*/
-
-                            subscriptionList.setVisibility(View.VISIBLE);
-                            subscriptionText.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-
-            }
-        });
-
-        Button start = (Button) findViewById(R.id.start_video);
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loadPublishActivity();
-            }
-        });
+        initialize();
     }
 
     @Override
@@ -291,16 +323,44 @@ public class LandingPageActivity extends Activity {
     }
 
     private void resetEverything() {
+
         // call server delete all
         DeleteAll deleteAll = new DeleteAll();
         deleteAll.run();
-        // if true
 
+        // if true
         AbstractResponse response = deleteAll.getResponse();
         if(response.isSuccess()) {
 
             // remove all shared prefs
             getApplicationContext().getSharedPreferences("SeeSetup", 0).edit().clear().commit();
+
+
+            // reset UI
+            EditText editText = (EditText) findViewById(R.id.channel_name);
+            editText.setText("Enter Channel Name");
+            editText.setEnabled(true);
+
+            Button createChannel = (Button) findViewById(R.id.create_channel);
+            createChannel.setVisibility(View.VISIBLE);
+            createChannel.setEnabled(true);
+
+            ListView subscriptionList = (ListView) findViewById(R.id.subscription_list);
+            TextView subscriptionText = (TextView) findViewById(R.id.subscription_list_text);
+
+            subscriptionList.setVisibility(View.INVISIBLE);
+            subscriptionList.setAdapter(null);
+            subscriptionText.setVisibility(View.INVISIBLE);
+
+            ListView channelList = (ListView) findViewById(R.id.channels_list);
+            channelList.setAdapter(null);
+
+            TextView channelText = (TextView) findViewById(R.id.channels_list_text);
+            channelText.setVisibility(View.GONE);
+
+
+            //register
+            GCM.getInstance().registerGCM();
         }
         else{
             Toast.makeText(this, response.getError(), Toast.LENGTH_SHORT).show();

@@ -23,7 +23,13 @@ public class Poll extends AbstractRequest {
                 return new PollResponse(result.getString(ServiceUtil.ResponseKeys.Error.getKey()), false);
             }
             else {
-                return new PollResponse(null, true, result.getString(ServiceUtil.ResponseKeys.VideoUrl.getKey()));
+                Object url = result.get(ServiceUtil.ResponseKeys.VideoUrl.getKey());
+                if(url == null){
+                    return new PollResponse(null, true, null);
+                }
+                else {
+                    return new PollResponse(null, true, (String)url);
+                }
             }
         } catch (Exception e) {
             // Ignore

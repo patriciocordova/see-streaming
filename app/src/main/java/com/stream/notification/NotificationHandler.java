@@ -31,64 +31,25 @@ public final class NotificationHandler {
 
     private static NotificationHandler INSTANCE = new NotificationHandler();
 
-    private final int NOTIFY_ME_ID = 1337;
-    //private List<VideoInfo> videos;
-    private Timer timer;
-
-    //private boolean isPaused;
-
-    private Cursor cursor;
+    private final int NOTIFY_ME_ID = 1;
     private String newVideoPath = "";
 
 
-    private NotificationHandler(){
-        //videos = loadVideos();
+    private NotificationHandler() {
     }
 
-    public static NotificationHandler getInstance(){
+    public static NotificationHandler getInstance() {
         return INSTANCE;
     }
 
 
-    public void start(){
-        // Poll
-        /*timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-
-                if(!isPaused) {
-                    Poll poll = new Poll();
-                    poll.run();
-
-                    PollResponse response = (PollResponse)poll.getResponse();
-                    if (response.isSuccess()) {
-                        newVideoPath = response.getVideoUrl();
-                        if(newVideoPath != null && !newVideoPath.isEmpty()) {
-                            System.out.println(newVideoPath);
-                            createNotification();
-                            try {
-                                Thread.sleep(10000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        else{
-                            System.out.println("Didnt work!!!!!");
-                        }
-                    }
-                    else{
-                        System.out.println("Didnt work!!!!!");
-                    }
-
-                }
-            }
-        }, 1000, 10000);*/
-
+    public void start() {
         Poll poll = new Poll();
         poll.run();
 
-        PollResponse response = (PollResponse)poll.getResponse();
+        PollResponse response = (PollResponse) poll.getResponse();
+
+
         if (response.isSuccess()) {
             newVideoPath = response.getVideoUrl();
             if (newVideoPath != null && !newVideoPath.isEmpty()) {
@@ -98,32 +59,9 @@ public final class NotificationHandler {
         }
     }
 
-    /*public boolean hasStarted(){
-        return (timer != null);
-    }
+    private void createNotification() {
 
-    public void pause(){
-        isPaused = true;
-    }
-
-    public void resume(){
-        isPaused = false;
-    }*/
-
-
-
-
-
-
-    private void createNotification(){
-
-        try{
-            //Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
-            //File file = new File(newVideoPath);
-            //String extension = android.webkit.MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(file).toString());
-            //String mimeType = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-            //intent.setDataAndType(Uri.fromFile(file), mimeType);
-
+        try {
             Intent intent = new Intent(ActivityUtil.getMainActivity(), ConsumeActivity.class);
             intent.putExtra("videoUrl", newVideoPath);
 
@@ -133,70 +71,13 @@ public final class NotificationHandler {
             Notification notification = new Notification(R.drawable.image, "Android Example Status message!", System.currentTimeMillis());
             notification.setLatestEventInfo(ActivityUtil.getMainActivity(), "Example", "Example", pendingIntent);
 
-            //notification.number = 3;
-
-            NotificationManager mgr = (NotificationManager)ActivityUtil.getMainActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager mgr = (NotificationManager) ActivityUtil.getMainActivity().getSystemService(Context.NOTIFICATION_SERVICE);
             mgr.notify(NOTIFY_ME_ID, notification);
 
 
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             Toast.makeText(ActivityUtil.getMainActivity(), "Could not play video : " + newVideoPath, Toast.LENGTH_SHORT).show();
         }
     }
 
-    // Test method to load videos from the phone
-    private List<VideoInfo> loadVideos(){
-
-        List<VideoInfo> videos = new ArrayList<VideoInfo>();
-
-        String[] thumbColumns = {
-                MediaStore.Video.Thumbnails.DATA,
-                MediaStore.Video.Thumbnails.VIDEO_ID,
-        };
-
-        String[] mediaColumns = {
-                MediaStore.Video.Media._ID,
-                MediaStore.Video.Media.DATA,
-                MediaStore.Video.Media.TITLE,
-                MediaStore.Video.Media.MIME_TYPE };
-
-        cursor = ActivityUtil.getMainActivity().managedQuery(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                mediaColumns, null, null, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                VideoInfo videoInfo = new VideoInfo();
-
-                int id = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media._ID));
-
-                String displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE));
-                String filePath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
-
-                videoInfo.displayName = displayName;
-                videoInfo.filePath = filePath;
-
-                Cursor thumbCursor = ActivityUtil.getMainActivity().managedQuery(
-                        MediaStore.Video.Thumbnails.EXTERNAL_CONTENT_URI,
-                        thumbColumns, MediaStore.Video.Thumbnails.VIDEO_ID
-                                + "=" + id, null, null);
-
-                if (thumbCursor.moveToFirst()) {
-                    videoInfo.thumbPath = thumbCursor.getString(thumbCursor.getColumnIndex(MediaStore.Video.Thumbnails.DATA));
-                    System.out.println(videoInfo.thumbPath);
-                }
-
-
-                videos.add(videoInfo);
-            } while (cursor.moveToNext());
-        }
-
-        return videos;
-    }
-}
-
-class VideoInfo {
-    String displayName;
-    String filePath;
-    String thumbPath;
 }
