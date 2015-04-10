@@ -1,3 +1,4 @@
+/*
 package com.stream.notification;
 
 import android.app.Notification;
@@ -24,9 +25,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
+*/
 /**
  * Created by home on 2015-03-23.
- */
+ *//*
+
 public final class NotificationHandler {
 
     private static NotificationHandler INSTANCE = new NotificationHandler();
@@ -81,3 +84,4 @@ public final class NotificationHandler {
     }
 
 }
+*/

@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.stream.R;
 
 import com.stream.gcm.GCM;
-import com.stream.notification.NotificationHandler;
+
 import com.stream.publishing.PublishActivity;
 import com.stream.service.request.CreateChannel;
 import com.stream.service.request.DeleteAll;
@@ -32,6 +32,7 @@ import com.stream.util.ActivityUtil;
 import com.stream.util.ServiceUtil;
 import com.stream.util.StorageUtil;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -260,6 +261,12 @@ public class LandingPageActivity extends Activity {
                     subscriptionText.setVisibility(View.VISIBLE);
 
                     // TODO Remove subscription from available channels list
+                    /*List<String> channelList = getChannelsList();
+                    if(channelList != null && !channelList.isEmpty())
+                        channelList = new ArrayList<String>();*/
+
+
+                    //setAvailableChannelList(channelList);
 
 
 
@@ -311,7 +318,7 @@ public class LandingPageActivity extends Activity {
         int id = item.getItemId();
 
         if (id == R.id.poll) {
-            NotificationHandler.getInstance().start();
+            //NotificationHandler.getInstance().start();
             return true;
         }
         else if (id == R.id.reset){

@@ -18,13 +18,12 @@ import com.stream.util.ActivityUtil;
 public class GcmBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        // Explicitly specify that GcmIntentService will handle the intent.
 
         String newVideoPath = intent.getStringExtra("videoUrl");
 
 
         Intent streamIntent = new Intent(ActivityUtil.getMainActivity(), ConsumeActivity.class);
-        intent.putExtra("videoUrl", newVideoPath);
+        streamIntent.putExtra("videoUrl", newVideoPath);
 
 
         PendingIntent pendingIntent = PendingIntent.getActivity(ActivityUtil.getMainActivity(), 0, streamIntent, 0);

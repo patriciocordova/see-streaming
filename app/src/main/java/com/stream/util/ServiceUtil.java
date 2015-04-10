@@ -25,14 +25,14 @@ public final class ServiceUtil {
     public static final String REMOTE_URL_HOST = "http://seedev.elasticbeanstalk.com";
 
 
-    public static final String REGISTER_URL = LOCAL_URL_HOST + "/see/register";
+    public static final String REGISTER_URL = REMOTE_URL_HOST + "/see/register";
 
 
-    public static final String CREATE_CHANNEL = LOCAL_URL_HOST + "/see/createChannel";
-    public static final String GET_CHANNELS = LOCAL_URL_HOST + "/see/getChannels";
-    public static final String SUBSCRIBE = LOCAL_URL_HOST + "/see/subscribe";
-    public static final String POLL = LOCAL_URL_HOST + "/see/poll";
-    public static final String DELETE_ALL = LOCAL_URL_HOST + "/see/deleteAll";
+    public static final String CREATE_CHANNEL = REMOTE_URL_HOST + "/see/createChannel";
+    public static final String GET_CHANNELS = REMOTE_URL_HOST + "/see/getChannels";
+    public static final String SUBSCRIBE = REMOTE_URL_HOST + "/see/subscribe";
+    public static final String POLL = REMOTE_URL_HOST + "/see/poll";
+    public static final String DELETE_ALL = REMOTE_URL_HOST + "/see/deleteAll";
 
 
     public static final String DEFAULT_CHARSET = "UTF-8";
