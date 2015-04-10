@@ -29,6 +29,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.googlecode.javacv.FFmpegFrameRecorder;
+import com.googlecode.javacv.cpp.avcodec;
+import com.googlecode.javacv.cpp.avutil;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.stream.Credentials;
 import com.stream.R;
@@ -231,7 +233,11 @@ public class PublishActivity extends Activity implements OnClickListener {
 
         Log.v(LOG_TAG, "FFmpegFrameRecorder: " + ffmpeg_link + " imageWidth: " + imageWidth + " imageHeight " + imageHeight);
 
+        recorder.setVideoCodec(avcodec.AV_CODEC_ID_FLV1);
         recorder.setFormat("flv");
+        //recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+        //recorder.setVideoBitrate(25*1024);
+        //recorder.setVideoQuality(50);
 
         Log.v(LOG_TAG, "recorder.setFormat(\"flv\")");
 
@@ -423,6 +429,7 @@ public class PublishActivity extends Activity implements OnClickListener {
 
 
                 Log.v(LOG_TAG,"Starting video record!");
+
                 recordVideo();
             }
             catch (IOException e) {
