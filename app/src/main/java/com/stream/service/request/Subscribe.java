@@ -1,5 +1,6 @@
 package com.stream.service.request;
 
+import com.stream.gcm.GCM;
 import com.stream.service.response.AbstractResponse;
 import com.stream.service.response.SubscribeResponse;
 import com.stream.util.ServiceUtil;
@@ -26,21 +27,10 @@ public class Subscribe extends AbstractRequest {
         try {
             JSONObject params = new JSONObject();
 
-            //JSONArray channelNamesArray = new JSONArray();
-            /*Iterator<String> iterChannelNames = this.channelNames.iterator();
-            while(iterChannelNames.hasNext()){
-                String channel = iterChannelNames.next();
-                channelNamesArray.put(channel);
-            }*/
+            //String requesterChannelName = StorageUtil.getStringValue(ServiceUtil.PayloadKeys.ChannelName.getKey());
+            String registrationId = StorageUtil.getStringValue(GCM.PROPERTY_REG_ID);
 
-            /*JSONObject object = new JSONObject();
-
-            params.put(ServiceUtil.PayloadKeys.ChannelNames.getKey(), channelNamesArray);
-            params.put(ServiceUtil.PayloadKeys.UserId.getKey(), StorageUtil.getStringValue(ServiceUtil.PayloadKeys.UserId.getKey()));*/
-
-            String requesterChannelName = StorageUtil.getStringValue(ServiceUtil.PayloadKeys.ChannelName.getKey());
-
-            params.put(ServiceUtil.PayloadKeys.RequesterChannelName.getKey(), requesterChannelName);
+            params.put(ServiceUtil.PayloadKeys.RegistrationId.getKey(), registrationId);
             params.put(ServiceUtil.PayloadKeys.NewSubscription.getKey(), this.newSubscription);
 
             StringEntity stringEntity = new StringEntity(params.toString(), ServiceUtil.DEFAULT_CHARSET);

@@ -21,11 +21,11 @@ public final class ServiceUtil {
     public static final String PUBLISHER_PASSWORD = "see";
 
     // REST SERVICE
-    public static final String LOCAL_URL_HOST = "http://100.64.183.209:8080/SeeService";
+    public static final String LOCAL_URL_HOST = "http://192.168.1.3:8080/SeeService";
     public static final String REMOTE_URL_HOST = "http://seedev.elasticbeanstalk.com";
 
 
-    public static final String REGISTER_URL = LOCAL_URL_HOST + "/see/register";
+    public static final String REGISTER_URL = REMOTE_URL_HOST + "/see/register";
 
 
     public static final String CREATE_CHANNEL = REMOTE_URL_HOST + "/see/createChannel";
@@ -41,7 +41,7 @@ public final class ServiceUtil {
     public enum PayloadKeys{
         UserId("userId"), ChannelName("channelName"), ChannelNames("channelNames"),
         Subscriptions("subscriptions"), RequesterChannelName("requestorChannelName"),
-        NewSubscription("newSubscription");
+        NewSubscription("newSubscription"), RegistrationId("registrationId");
 
         private String key;
 

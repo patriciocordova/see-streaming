@@ -1,5 +1,6 @@
 package com.stream.service.request;
 
+import com.stream.gcm.GCM;
 import com.stream.service.response.AbstractResponse;
 import com.stream.service.response.CreateChannelResponse;
 import com.stream.util.ServiceUtil;
@@ -26,7 +27,10 @@ public class CreateChannel extends AbstractRequest {
         try {
             JSONObject params = new JSONObject();
             params.put(ServiceUtil.PayloadKeys.ChannelName.getKey(), channelName);
-            params.put(ServiceUtil.PayloadKeys.UserId.getKey(), StorageUtil.getStringValue(ServiceUtil.PayloadKeys.UserId.getKey()));
+            String registrationId = StorageUtil.getStringValue(GCM.PROPERTY_REG_ID);
+
+            params.put(ServiceUtil.PayloadKeys.RegistrationId.getKey(), registrationId);
+
             StringEntity stringEntity = new StringEntity(params.toString(), ServiceUtil.DEFAULT_CHARSET);
 
             HttpPost post = ServiceUtil.getPostRequest(ServiceUtil.CREATE_CHANNEL, stringEntity);
