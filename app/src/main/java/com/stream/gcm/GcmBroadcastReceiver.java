@@ -11,7 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.stream.R;
-import com.stream.consuming.ConsumeActivity;
+//import com.stream.consuming.ConsumeActivity;
 import com.stream.util.ActivityUtil;
 
 
@@ -22,6 +22,7 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
         String newVideoPath = intent.getStringExtra("videoUrl");
 
 
+        /*
         Intent streamIntent = new Intent(ActivityUtil.getMainActivity(), ConsumeActivity.class);
         streamIntent.putExtra("videoUrl", newVideoPath);
 
@@ -36,5 +37,6 @@ public class GcmBroadcastReceiver extends BroadcastReceiver {
 
         //startWakefulService(context, (intent.setComponent(comp)));
         setResultCode(Activity.RESULT_OK);
+        */
     }
 }

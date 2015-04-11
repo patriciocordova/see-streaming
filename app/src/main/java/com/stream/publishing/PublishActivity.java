@@ -81,7 +81,6 @@ public class PublishActivity extends Activity implements OnClickListener {
         //Remove notification bar
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-
         ffmpeg_link = Credentials.getPublishUrl();
 
         setBestResolution();
