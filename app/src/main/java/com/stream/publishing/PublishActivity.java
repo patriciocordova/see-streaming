@@ -113,6 +113,8 @@ public class PublishActivity extends Activity implements OnClickListener {
                 imageHeight = size.height;
             }
         }
+
+        System.out.println("Resolution: " + imageWidth + "*" + imageHeight);
     }
 
     public Camera.Size getResolutionMobile(){
@@ -138,7 +140,7 @@ public class PublishActivity extends Activity implements OnClickListener {
             switch (listSize){
                 case 1: return cameraVideoResolutions.get(lastIndex - 0);
                 case 2: return cameraVideoResolutions.get(lastIndex - 1);
-                default: return cameraVideoResolutions.get(3);
+                default: return cameraVideoResolutions.get(2);
             }
         }
         return null;
